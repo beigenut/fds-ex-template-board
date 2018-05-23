@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 // token instance 활용하기 -> axio. 선언하는 것 모두 postAPI 로 변경!
-const postAPI = axios.create({})
+const postAPI = axios.create({
+  baseURL: process.env.API_URL
+  // baseURL: 'http://localhost:3000'
+})
+
 const rootEl = document.querySelector('.root')
 
 function login(token) {
@@ -36,7 +40,7 @@ function render(fragment) {
 
 // 인덱스 페이지 탬플릿 실행기 
 async function indexPage() {
-  const res = await postAPI.get('http://localhost:3000/posts');
+  const res = await postAPI.get('/posts');
   // listFragment 에는 모든 postList(post-list) 의 엘리먼트들이 들어있음
   const listFragment = document.importNode(templates.postList, true);
   // log in 버튼에 add event 
@@ -64,7 +68,7 @@ async function indexPage() {
 
 // 게시글 페이지 실행기
 async function postContentPage(postId) {
-  const res = await postAPI.get(`http://localhost:3000/posts/${postId}`)
+  const res = await postAPI.get(`/posts/${postId}`)
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
   fragment.querySelector('.post-content__body').textContent = res.data.body
@@ -89,7 +93,7 @@ async function loginPage() {
     }
     // 실제로 데이터가 어딘가로 전송되는 것을 막기 위해서 
     e.preventDefault();
-    const res = await postAPI.post('http://localhost:3000/users/login', payload)
+    const res = await postAPI.post('/users/login', payload)
     // alert(JSON.stringfy(payload)) 객체를 json 문서처럼 보일 수 있도록
     login(res.data.token)
     // login 성공 후 페이지 이동
@@ -112,7 +116,7 @@ async function postFormPage() {
       title: e.target.elements.title.value,
       body: e.target.elements.body.value
     }
-    const res = await postAPI.post('http://localhost:3000/posts', payload)
+    const res = await postAPI.post('/posts', payload)
     indexPage();
     // postContentPage(post.id) // post.id = res.data.id
   })
