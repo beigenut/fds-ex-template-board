@@ -16,6 +16,7 @@ const templates = {
   postItem: document.querySelector('#post-item').content,
   postContent: document.querySelector('#post-content').content,
   login: document.querySelector('#login').content,
+  newPost: document.querySelector('#post-form').content,
 }
 
 // Avoid code duplication
@@ -31,6 +32,7 @@ async function indexPage() {
   const listFragment = document.importNode(templates.postList, true);
   // log in 버튼에 add event 
   listFragment.querySelector('.btn__users-login').addEventListener("click", e => { loginPage() })
+  // log out 버튼에 add event 
   listFragment.querySelector('.btn__users-logout').addEventListener("click", e => {
     localStorage.removeItem('token')
     // 객체의 속성을 지울 때는 delete
@@ -38,6 +40,8 @@ async function indexPage() {
     rootEl.classList.remove('root--authed')
     indexPage() 
   })
+  // add new post 버튼에 add event
+  listFragment.querySelector('.btn__new-post').addEventListener("click", e => { postFormPage() })
 
   res.data.forEach(post => {
     // post 에는 id, title, body, userId 가 있음
@@ -87,6 +91,26 @@ async function loginPage() {
     rootEl.classList.add('root--authed')
     // login 성공 후 페이지 이동
     indexPage()
+  })
+  render(fragment)
+}
+
+// 새 포스트 쓰기 생성
+async function postFormPage() {
+  const fragment = document.importNode(templates.newPost, true)
+  const formEl = fragment.querySelector('.post-form')
+  fragment.querySelector('.btn__go-back').addEventListener("click", e => { indexPage() })
+  formEl.addEventListener("submit", async e => {
+    const payload = {
+      title: e.target.elements.title.value,
+      body: e.target.elements.body.value
+    }
+    e.preventDefault()
+    const res = await postAPI.post('http://localhost:3000/posts', payload)
+    localStorage.setItem('token', res.data.token)
+    postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`;
+    rootEl.classList.add('root--authed')
+    indexPage();
   })
   render(fragment)
 }

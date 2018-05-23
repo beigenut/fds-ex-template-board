@@ -6,19 +6,28 @@ body {
 
 // button settings
 
-.btn__users {
-  &-login {
-    .root--authed & {
-      display: none;
-    }
-  }
-  &-logout {
+.btn {
+  &__new-post {
     display: none;
     .root--authed & {
       display: inline-block;
     }
   }
+  &__users {
+    &-login {
+      .root--authed & {
+        display: none;
+      }
+    }
+    &-logout {
+      display: none;
+      .root--authed & {
+        display: inline-block;
+      }
+    }
+  }
 }
+
 // .root--authed .btn__users-login {
 //   display: none;
 // }
