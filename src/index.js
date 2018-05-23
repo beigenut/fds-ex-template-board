@@ -2,9 +2,15 @@ import axios from 'axios';
 
 // token instance 활용하기 -> axio. 선언하는 것 모두 postAPI 로 변경!
 const postAPI = axios.create({})
+const rootEl = document.querySelector('.root')
+// 새로고침하면 로그인이 풀리는 현상 해결
+if (localStorage.getItem('token')) {
+  postAPI.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`
+  // BEM; -- modifier
+  rootEl.classList.add('root--authed')
+} 
 
 // 자주 쓰는 엘리먼트 빼주기 ex) templates.postList 
-const rootEl = document.querySelector('.root')
 const templates = {   
   postList: document.querySelector('#post-list').content,
   postItem: document.querySelector('#post-item').content,
@@ -25,6 +31,13 @@ async function indexPage() {
   const listFragment = document.importNode(templates.postList, true);
   // log in 버튼에 add event 
   listFragment.querySelector('.btn__users-login').addEventListener("click", e => { loginPage() })
+  listFragment.querySelector('.btn__users-logout').addEventListener("click", e => {
+    localStorage.removeItem('token')
+    // 객체의 속성을 지울 때는 delete
+    delete postAPI.defaults.headers['Authorization']
+    rootEl.classList.remove('root--authed')
+    indexPage() 
+  })
 
   res.data.forEach(post => {
     // post 에는 id, title, body, userId 가 있음
@@ -70,7 +83,8 @@ async function loginPage() {
     // alert(JSON.stringfy(payload)) 객체를 json 문서처럼 보일 수 있도록
     localStorage.setItem('token', res.data.token)
     // postAPI.defaults : 항상 기본으로 동작
-    postAPI.defaults.headers['Authorization'] = res.data.token;
+    postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`;
+    rootEl.classList.add('root--authed')
     // login 성공 후 페이지 이동
     indexPage()
   })
