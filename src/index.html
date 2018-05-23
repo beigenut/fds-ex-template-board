@@ -11,12 +11,32 @@
   <div class="root"></div>
   
   <template id="post-list">
+    <a href="#" class="btn btn__users-login">Log In</a>
     <h1>게시글 목록</h1>
     <div class="post-list"></div>
   </template>
 
   <template id="post-item">
     <p class="post-item__title"></p>
+  </template>
+
+  <template id="post-content">
+    <a href="#" class="btn btn__go-back">Go Back</a>
+    <div class="post-content">
+      <h2 class="post-content__title"></h2>
+      <p class="post-content__body"></p>
+    </div>
+  </template>
+
+  <template id="login">
+    <div class="login">
+      <h1 class="login__title">Log in</h1>
+      <form class="login__form">
+        <input name="username" type="text" class="login__username">
+        <input name="password" type="password" class="login__password">
+        <button type="submit">Send</button>
+      </form>
+    </div>
   </template>
 
   <script src="./index.js"></script>
