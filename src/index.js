@@ -3,12 +3,21 @@ import axios from 'axios';
 // token instance 활용하기 -> axio. 선언하는 것 모두 postAPI 로 변경!
 const postAPI = axios.create({})
 const rootEl = document.querySelector('.root')
-// 새로고침하면 로그인이 풀리는 현상 해결
-if (localStorage.getItem('token')) {
-  postAPI.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`
-  // BEM; -- modifier
+
+function login(token) {
+  localStorage.setItem('token', token)
+  // postAPI.defaults : 항상 기본으로 동작
+  postAPI.defaults.headers['Authorization'] = `Bearer ${token}`;
+  // BEM -- modifier
   rootEl.classList.add('root--authed')
-} 
+}
+
+function logout() {
+  localStorage.removeItem('token')
+  // 객체의 속성을 지울 때는 delete
+  delete postAPI.defaults.headers['Authorization']
+  rootEl.classList.remove('root--authed')
+}
 
 // 자주 쓰는 엘리먼트 빼주기 ex) templates.postList 
 const templates = {   
@@ -34,10 +43,7 @@ async function indexPage() {
   listFragment.querySelector('.btn__users-login').addEventListener("click", e => { loginPage() })
   // log out 버튼에 add event 
   listFragment.querySelector('.btn__users-logout').addEventListener("click", e => {
-    localStorage.removeItem('token')
-    // 객체의 속성을 지울 때는 delete
-    delete postAPI.defaults.headers['Authorization']
-    rootEl.classList.remove('root--authed')
+    logout()
     indexPage() 
   })
   // add new post 버튼에 add event
@@ -85,10 +91,7 @@ async function loginPage() {
     e.preventDefault();
     const res = await postAPI.post('http://localhost:3000/users/login', payload)
     // alert(JSON.stringfy(payload)) 객체를 json 문서처럼 보일 수 있도록
-    localStorage.setItem('token', res.data.token)
-    // postAPI.defaults : 항상 기본으로 동작
-    postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`;
-    rootEl.classList.add('root--authed')
+    login(res.data.token)
     // login 성공 후 페이지 이동
     indexPage()
   })
@@ -99,21 +102,27 @@ async function loginPage() {
 async function postFormPage() {
   const fragment = document.importNode(templates.newPost, true)
   const formEl = fragment.querySelector('.post-form')
-  fragment.querySelector('.btn__go-back').addEventListener("click", e => { indexPage() })
+  fragment.querySelector('.btn__go-back').addEventListener("click", e => {
+    e.preventDefault()
+    indexPage() 
+  })
   formEl.addEventListener("submit", async e => {
+    e.preventDefault()
     const payload = {
       title: e.target.elements.title.value,
       body: e.target.elements.body.value
     }
-    e.preventDefault()
     const res = await postAPI.post('http://localhost:3000/posts', payload)
-    localStorage.setItem('token', res.data.token)
-    postAPI.defaults.headers['Authorization'] = `Bearer ${res.data.token}`;
-    rootEl.classList.add('root--authed')
     indexPage();
+    // postContentPage(post.id) // post.id = res.data.id
   })
   render(fragment)
 }
+
+// 새로고침하면 로그인이 풀리는 현상 해결
+if (localStorage.getItem('token')) {
+  login(localStorage.getItem('token'))
+} 
 
 indexPage();
 // postContentPage(1);

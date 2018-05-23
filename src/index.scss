@@ -7,6 +7,13 @@ body {
 // button settings
 
 .btn {
+  width: auto;
+  border: 1px solid #666;
+  border-radius: 4px;
+  background-color: #555;
+  padding: 5px 10px;
+  color: #fff;
+  text-decoration: none;
   &__new-post {
     display: none;
     .root--authed & {
