@@ -42,19 +42,26 @@ function render(fragment) {
 
 // 인덱스 페이지 (메인 페이지) 탬플릿 실행기 
 async function indexPage() {
+  // await 붙은 통신 부분이 시간을 잡아먹는 부분이므로, 통신 앞 뒤로 인디케이터를 띄운다
+  rootEl.classList.add('root--loading')
   // 가급적 db, server 와 통신회수를 줄일 수록 좋다 ex. expand 를 쓴다
   // posts?_expand=user 를 쓸 수 있는 json 서버 명령어 
   // post 와 연결된 속성의 userId 물려있는 값까지 가지고 온다
   const res = await postAPI.get('/posts?_expand=user');
+  rootEl.classList.remove('root--loading')
+  
   // listFragment 에는 모든 postList(post-list) 의 엘리먼트들이 들어있음
   const listFragment = document.importNode(templates.postList, true);
+  
   // log in 버튼에 add event 
   listFragment.querySelector('.btn__users-login').addEventListener("click", e => { loginPage() })
+  
   // log out 버튼에 add event 
   listFragment.querySelector('.btn__users-logout').addEventListener("click", e => {
     logout()
     indexPage() 
   })
+  
   // add new post 버튼에 add event
   listFragment.querySelector('.btn__new-post').addEventListener("click", e => { postFormPage() })
 
@@ -78,7 +85,8 @@ async function postContentPage(postId) {
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
   fragment.querySelector('.post-content__body').textContent = res.data.body
-  fragment.querySelector('.btn__go-back').addEventListener("click", e => { indexPage() 
+  fragment.querySelector('.btn__go-back').addEventListener("click", e => { 
+    indexPage()
   })
 
   // 로컬 스토리지에 토큰이 저장되어 있는 상태라면 아래 댓글을 불러와 
