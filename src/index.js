@@ -30,6 +30,8 @@ const templates = {
   postContent: document.querySelector('#post-content').content,
   login: document.querySelector('#login').content,
   newPost: document.querySelector('#post-form').content,
+  comments: document.querySelector('#comments').content,
+  commentItem: document.querySelector('#comment-item').content,
 }
 
 // Avoid code duplication
@@ -38,9 +40,12 @@ function render(fragment) {
   rootEl.appendChild(fragment)
 }
 
-// 인덱스 페이지 탬플릿 실행기 
+// 인덱스 페이지 (메인 페이지) 탬플릿 실행기 
 async function indexPage() {
-  const res = await postAPI.get('/posts');
+  // 가급적 db, server 와 통신회수를 줄일 수록 좋다 ex. expand 를 쓴다
+  // posts?_expand=user 를 쓸 수 있는 json 서버 명령어 
+  // post 와 연결된 속성의 userId 물려있는 값까지 가지고 온다
+  const res = await postAPI.get('/posts?_expand=user');
   // listFragment 에는 모든 postList(post-list) 의 엘리먼트들이 들어있음
   const listFragment = document.importNode(templates.postList, true);
   // log in 버튼에 add event 
@@ -56,6 +61,7 @@ async function indexPage() {
   res.data.forEach(post => {
     // post 에는 id, title, body, userId 가 있음
     const fragment = document.importNode(templates.postItem, true);
+    fragment.querySelector('.post-item__author').textContent = post.user.username
     const pEl = fragment.querySelector('.post-item__title');
     pEl.addEventListener("click", e => {
       postContentPage(post.id);
@@ -66,14 +72,37 @@ async function indexPage() {
   render(listFragment)
 }
 
-// 게시글 페이지 실행기
+// 게시글 상세 페이지 실행기
 async function postContentPage(postId) {
   const res = await postAPI.get(`/posts/${postId}`)
   const fragment = document.importNode(templates.postContent, true)
   fragment.querySelector('.post-content__title').textContent = res.data.title
   fragment.querySelector('.post-content__body').textContent = res.data.body
-  fragment.querySelector('.btn__go-back').addEventListener("click", e => { indexPage() })
+  fragment.querySelector('.btn__go-back').addEventListener("click", e => { indexPage() 
+  })
 
+  // 로컬 스토리지에 토큰이 저장되어 있는 상태라면 아래 댓글을 불러와 
+  if (localStorage.getItem('token')) {
+    const commentsFragment = document.importNode(templates.comments, true)
+    const commentsRes = await postAPI.get(`/post/${postId}/comments`)
+    commentsRes.data.forEach(comment => {
+      const itemFragment = document.importNode(templates.commentItem, true)
+      itemFragment.querySelector('.comment-item__body').textContent = comment.body
+      commentsFragment.querySelector('.comments__list').appendChild(itemFragment)
+    })
+    const formEl = commentsFragment.querySelector('.comments__form')
+    formEl.addEventListener('submit', async e => {
+      e.preventDefault()
+      const payload = {
+        body: e.target.elements.body.value
+      }
+      const res = await postAPI.post(`/posts/${postId}/comments`, payload)
+      // 제3자가 그 사이에 코멘트를 추가했을 경우 그것까지 불러온다 (최신 데이터까지) 
+      // 페이지를 새로 로드해야하기 때문에 비효율적일 순 있다
+      postContentPage(postId)
+    })
+    fragment.appendChild(commentsFragment)
+  }
   render(fragment)
 }
 

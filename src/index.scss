@@ -35,23 +35,27 @@ body {
   }
 }
 
-// .root--authed .btn__users-login {
-//   display: none;
-// }
-
-// .btn__users-logout {
-//   display: none;
-// }
-
-// .root--authed .btn__users-logout {
-//   display: inline-block;
-// }
-
 // index 페이지 css
 
 .post-item {
 
   &__title {
     cursor: pointer;    
+  }
+}
+
+
+// 포스트 페이지 
+
+.post-comment {
+  display: none;
+  .root--authed & {
+    display: inline-block;
+  }
+  &__form {
+    display: none;
+    .root--authed & {
+      display: inline-block;
+    }
   }
 }

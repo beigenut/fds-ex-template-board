@@ -10,6 +10,7 @@
 <body>
   <div class="root"></div>
   
+  <!-- 첫 메인 페이지 -->
   <template id="post-list">
     <a href="#" class="btn btn__users-login">Log In</a>
     <a href="#" class="btn btn__new-post">Add New Post</a>
@@ -18,10 +19,13 @@
     <div class="post-list"></div>
   </template>
 
+  <!-- 각각의 포스트 제목을 골라서 위에 div.post-list 에 뿌려준다 -->
   <template id="post-item">
+    <p class="post-item__author"></p>
     <p class="post-item__title"></p>
   </template>
 
+  <!-- 포스트 상세 페이지 -->
   <template id="post-content">
     <a href="#" class="btn btn__go-back">Go Back</a>
     <div class="post-content">
@@ -30,6 +34,7 @@
     </div>
   </template>
 
+  <!-- 로그인 페이지 -->
   <template id="login">
     <div class="login">
       <h1 class="login__title">Log in</h1>
@@ -41,15 +46,29 @@
     </div>
   </template>
 
+  <!-- 포스트 작성 페이지 -->
   <template id="post-form">
     <form class="post-form">
       <h1 class="post-form__header">Add New Post</h1>
       <input name="title" type="text" class="post-form__title">
       <textarea name="body" class="post-form__body"></textarea>
-      <!-- <a href="#" class="btn btn__submit">Submit</a> -->
       <button type="submit">Submit</button>
       <a href="#" class="btn btn__go-back">Go Back</a>
     </form>
+  </template>
+
+  <!-- 포스트에 코멘트 남기기 -->
+  <template id="comments">
+    <h2 class="comments__title">Comment(s)</h1>
+    <form class="comments__form">
+      <input name="body" type="text" class="comments__body">
+      <button type="submit">Submit</button>
+    </form>
+    <div class="comments__list"></div>
+  </template>
+
+  <template id="comment-item">
+    <p class="comment-item__body"></p>
   </template>
 
   <script src="./index.js"></script>
